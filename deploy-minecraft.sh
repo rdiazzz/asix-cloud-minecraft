@@ -1,43 +1,34 @@
+
 #!/bin/bash
 
-# Evitar preguntes durant la instal·lació
+# Evita que aparezcan preguntas durante la instalacion
 export DEBIAN_FRONTEND=noninteractive
 
-# Aturar l'execució si alguna ordre falla
-set -e
+# Actualizamos los repositorios y el sistema
+apt update -y
+apt upgrade -y
 
-# Actualitzar els paquets del sistema
-apt-get update -y
-apt-get upgrade -y
+# Instalamos Docker
+apt install -y docker.io
 
-# Instal·lar Docker
-apt-get install -y docker.io curl
+# Activamos Docker para que arranque automaticamente
+systemctl enable docker
+systemctl start docker
 
-# Activar Docker perquè s'iniciï automàticament
-systemctl enable --now docker
-
-# Crear la carpeta on es guardaran les dades de Minecraft
+# Creamos la carpeta donde se guardaran los datos de Minecraft
 mkdir -p /home/ubuntu/minecraft-data
 
-# Assignar la carpeta a l'usuari ubuntu
-chown -R ubuntu:ubuntu /home/ubuntu/minecraft-data
+# Eliminamos un contenedor anterior si existiera
+docker rm -f minecraft-server 2>/dev/null || true
 
-# Eliminar un contenidor anterior amb el mateix nom, si existeix
-if docker container inspect minecraft-server >/dev/null 2>&1; then
-    docker rm -f minecraft-server
-fi
-
-# Descarregar i iniciar el servidor de Minecraft
+# Descargamos y arrancamos el servidor de Minecraft
 docker run -d \
-    --name minecraft-server \
-    --restart unless-stopped \
-    -p 25565:25565 \
-    -v /home/ubuntu/minecraft-data:/data \
-    -e EULA=TRUE \
-    -e ENABLE_AUTOPAUSE=FALSE \
-    -e ONLINE_MODE=FALSE \
-    -e MOTD="Server Ricardo Alejandro Diaz Castillo" \
-    itzg/minecraft-server
-
-# Mostrar informació del contenidor
-docker ps
+  --name minecraft-server \
+  --restart unless-stopped \
+  -p 25565:25565 \
+  -v /home/ubuntu/minecraft-data:/data \
+  -e EULA=TRUE \
+  -e ENABLE_AUTOPAUSE=FALSE \
+  -e ONLINE_MODE=FALSE \
+  -e MOTD="Server Ricardo Alejandro Diaz Castillo" \
+  itzg/minecraft-server
