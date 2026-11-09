@@ -1,4 +1,3 @@
-
 #!/bin/bash
 
 # Evita que aparezcan preguntas durante la instalacion
